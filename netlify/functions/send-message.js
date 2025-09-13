@@ -1,17 +1,37 @@
-export async function handler(event, context) {
-  const token = process.env.TELEGRAM_BOT_TOKEN; // token stored safely in Netlify
+const fetch = require("node-fetch");
+
+exports.handler = async (event) => {
+  // Only allow POST requests
+  if (event.httpMethod !== "POST") {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ error: "Method not allowed" }),
+    };
+  }
+
+  // Get chat_id and text from the request body
   const { chat_id, text } = JSON.parse(event.body);
 
-  const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id, text })
-  });
+  // Telegram Bot API URL
+  const url = https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage;
 
-  const data = await response.json();
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ chat_id, text }),
+    });
 
-  return {
-    statusCode: 200,
-    body: JSON.stringify(data)
-  };
-}
+    const data = await response.json();
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify(data),
+    };
+  } catch (error) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: error.message }),
+    };
+  }
+};
